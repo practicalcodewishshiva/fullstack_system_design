@@ -1,0 +1,32 @@
+# Node.js with React
+# Build a Node.js project that uses React.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+# 1. Clean previous installs
+- script: |
+    rm -rf node_modules package-lock.json
+  workingDirectory: '$(System.DefaultWorkingDirectory)/Frontend/my-react-app'
+  displayName: 'Clean node_modules and package-lock'
+
+# 2. Install with optional dependencies (force rollup linux binary)
+- script: |
+    npm install
+  workingDirectory: '$(System.DefaultWorkingDirectory)/Frontend/my-react-app'
+  displayName: 'npm install'
+  env:
+    npm_config_optional: 'true'
+
+# 3. Or use ci install with legacy peer deps (more stable)
+- script: |
+    npm ci --legacy-peer-deps
+  workingDirectory: '$(System.DefaultWorkingDirectory)/Frontend/my-react-app'
+  displayName: 'npm ci install'
+  condition: failed()  # Only run if step 2 fails
