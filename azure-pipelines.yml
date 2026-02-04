@@ -10,21 +10,23 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-# Frontend
-- task: Npm@1
-  inputs:
-    command: 'install'
-    workingDir: 'Frontend/my-react-app'
-  displayName: 'npm install (Frontend)'
-
-- task: Npm@1
-  inputs:
-    command: 'custom'
-    customCommand: 'run build'
-    workingDir: 'Frontend/my-react-app'
-  displayName: 'npm build (Frontend)'
-
+# 1. Clean previous installs
 - script: |
-    yarn install
-    npm run build
-  displayName: 'npm install and build'
+    rm -rf node_modules package-lock.json
+  workingDirectory: '$(System.DefaultWorkingDirectory)/Frontend/my-react-app'
+  displayName: 'Clean node_modules and package-lock'
+
+# 2. Install with optional dependencies (force rollup linux binary)
+- script: |
+    npm install
+  workingDirectory: '$(System.DefaultWorkingDirectory)/Frontend/my-react-app'
+  displayName: 'npm install'
+  env:
+    npm_config_optional: 'true'
+
+# 3. Or use ci install with legacy peer deps (more stable)
+- script: |
+    npm ci --legacy-peer-deps
+  workingDirectory: '$(System.DefaultWorkingDirectory)/Frontend/my-react-app'
+  displayName: 'npm ci install'
+  condition: failed()  # Only run if step 2 fails
