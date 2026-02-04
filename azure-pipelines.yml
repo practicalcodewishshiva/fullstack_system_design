@@ -25,6 +25,6 @@ steps:
   displayName: 'npm build (Frontend)'
 
 - script: |
-    npm install
+    yarn install
     npm run build
   displayName: 'npm install and build'
